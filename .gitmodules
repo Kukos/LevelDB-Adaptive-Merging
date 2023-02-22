@@ -1,0 +1,3 @@
+[submodule "external/submodules/leveldb"]
+	path = external/submodules/leveldb
+	url = https://github.com/google/leveldb

@@ -9,7 +9,9 @@ LEVELDB_LIB := -L$(LEVELDB_DIR)/build -lleveldb
 
 CXX := clang++
 
-CXX_WARN := -Weverything
+CXX_WARN := -Weverything -Wno-c++98-compat -Wno-shadow-field-in-constructor \
+ 			-Wno-weak-vtables -Wno-old-style-cast -Wno-padded -Wno-global-constructors -Wno-exit-time-destructors \
+			-Wno-ctad-maybe-unsupported
 CXX_STD := -std=c++17
 CXX_OPT := -O3
 CXX_LIN := -fno-rtti

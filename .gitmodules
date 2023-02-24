@@ -1,3 +1,6 @@
 [submodule "external/submodules/leveldb"]
 	path = external/submodules/leveldb
 	url = https://github.com/google/leveldb
+[submodule "external/submodules/spdlog"]
+	path = external/submodules/spdlog
+	url = https://github.com/gabime/spdlog.git

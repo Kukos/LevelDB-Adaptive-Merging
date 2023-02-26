@@ -231,6 +231,70 @@ void DBBenchmark::leveldbBenchmarkAMSimulation(const std::vector<DBRecord>& entr
     std::cout << "LEVELDB BENCHMARK AM SIMULATION (sel : " << static_cast<size_t>(sel * 100) <<  " sleep " << millisecondsSleep << " ms) took " << std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count() << " ms" << std::endl;
 }
 
+void DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(const std::vector<DBRecord>& entries, const size_t bufferSize, const double sel, const size_t millisecondsSleep, const bool flushFileSystemBuffer) noexcept(true)
+{
+    const std::string databaseFolderName = std::string(".") + hostPlatform::directorySeparator + std::string("leveldb_benchmark_am_simulation_writebuffer_") + std::to_string(bufferSize) + std::string("_") + std::to_string(static_cast<size_t>(sel * 100)) + std::string("_") + std::to_string(millisecondsSleep);
+
+    std::cout << std::unitbuf;
+    std::cout << "LEVELDB BENCHMARK AM SIMULATION WITH BUFFER (bufferSize: " << bufferSize << " sel : " << static_cast<size_t>(sel * 100) <<  " sleep " << millisecondsSleep << " ms) ..." << std::endl;
+
+    std::filesystem::remove_all(databaseFolderName);
+
+    if (flushFileSystemBuffer)
+        hostPlatform::flushFileSystemCache();
+
+    leveldb::DB* db;
+    leveldb::Options options;
+    options.create_if_missing = true;
+
+    const leveldb::Status status = leveldb::DB::Open(options, databaseFolderName, &db);
+
+    if (!status.ok())
+    {
+        std::cerr << "Unable to open/create test database: " << status.ToString() << std::endl;
+        return;
+    }
+
+    const auto startWrite = std::chrono::high_resolution_clock::now();
+
+    // insert keys
+    const std::string logFileName = databaseFolderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+    size_t entriesIndex = 0;
+    const std::vector<size_t> amQueries = generateAMQueries(entries.size(), sel);
+
+    DBWriteBuffer buffer(db, bufferSize);
+
+    LOGGER_LOG_DEBUG("Entries = {}, amQueries = {}, bufferSize = {}, sel = {}", entries.size(), amQueries.size(), bufferSize, static_cast<size_t>(sel * 100));
+    for (size_t q = 0; q < amQueries.size(); ++q)
+    {
+        const auto startBatch = std::chrono::high_resolution_clock::now();
+
+        for (size_t i = 0; i < amQueries[q]; ++i)
+        {
+            buffer.insert(entries[entriesIndex]);
+            ++entriesIndex;
+        }
+
+        if (millisecondsSleep > 0)
+            std::this_thread::sleep_for(std::chrono::milliseconds(millisecondsSleep));
+
+        const auto endBatch = std::chrono::high_resolution_clock::now();
+        log << std::chrono::duration_cast<std::chrono::milliseconds>(endBatch - startBatch).count() << std::endl;
+    }
+
+    buffer.flush();
+    log.close();
+
+    delete db;
+
+    const auto endWrite = std::chrono::high_resolution_clock::now();
+    std::cout << "LEVELDB BENCHMARK AM SIMULATION WITH BUFFER (bufferSize: " << bufferSize << " sel : " << static_cast<size_t>(sel * 100) <<  " sleep " << millisecondsSleep << " ms) took " << std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count() << " ms" << std::endl;
+}
+
+
 void DBBenchmark::leveldbBenchmark() noexcept(true)
 {
     constexpr size_t numEntries = 10 * 1000 * 1000; // 10m
@@ -284,4 +348,33 @@ void DBBenchmark::leveldbBenchmark() noexcept(true)
     DBBenchmark::leveldbBenchmarkAMSimulation(entries, 0.1, 500);
     DBBenchmark::leveldbBenchmarkAMSimulation(entries, 0.15, 500);
     DBBenchmark::leveldbBenchmarkAMSimulation(entries, 0.2, 500);
+
+
+    constexpr size_t bufferSize = 100 * 1000;
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.01, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.02, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.03, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.04, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.05, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.1, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.15, 0);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.2, 0);
+
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.01, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.02, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.03, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.04, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.05, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.1, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.15, 100);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.2, 100);
+
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.01, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.02, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.03, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.04, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.05, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.1, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.15, 500);
+    DBBenchmark::leveldbBenchmarkAMSimulationWithWriteBuffer(entries, bufferSize, 0.2, 500);
 }

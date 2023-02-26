@@ -6,6 +6,7 @@
 namespace hostPlatform
 {
 extern std::string directorySeparator;
+void flushFileSystemCache();
 
 // LINUX platform
 #ifdef __linux__

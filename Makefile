@@ -15,7 +15,8 @@ SPDLOG_LIB := -L$(SPDLOG_DIR)/build -lspdlog
 
 CXX := clang++
 
-CXX_SPDLOG_WARN_SUPRESS := -Wno-documentation-unknown-command -Wno-c++98-compat -Wno-newline-eof -Wno-covered-switch-default -Wno-float-equal -Wno-switch-enum
+CXX_SPDLOG_WARN_SUPRESS := -Wno-documentation-unknown-command -Wno-c++98-compat -Wno-newline-eof -Wno-covered-switch-default \
+				           -Wno-float-equal -Wno-switch-enum -Wno-inconsistent-missing-destructor-override
 CXX_WARN := -Weverything -Wno-c++98-compat-pedantic -Wno-shadow-field-in-constructor \
  			-Wno-weak-vtables -Wno-old-style-cast -Wno-padded -Wno-global-constructors -Wno-exit-time-destructors \
 			-Wno-ctad-maybe-unsupported $(CXX_SPDLOG_WARN_SUPRESS)

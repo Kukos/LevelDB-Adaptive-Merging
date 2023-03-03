@@ -3,6 +3,9 @@
 #include <dbBenchmark.hpp>
 #include <dbInMemoryIndex.hpp>
 #include <dbRecordGenerator.hpp>
+#include <dbLevelDbIndex.hpp>
+
+#include <filesystem>
 
 [[maybe_unused]] static void dbInMemoryIndexExample()
 {
@@ -110,6 +113,119 @@
     std::cout << "============================== "<< std::endl;
 }
 
+[[maybe_unused]] static void dbLevelDbIndexExample()
+{
+    std::cout << "=== LEVELDB INDEX EXAMPLE === "<< std::endl;
+
+    const std::string databaseFolderName = std::string("./leveldb_main");
+    constexpr size_t bufferCapacity = 4;
+
+    std::filesystem::remove_all(databaseFolderName);
+
+    std::vector<DBRecord> records = DBRecordGenerator::generateRecords(10, 10);
+
+    std::cout << "GENERATED:" << std::endl;
+    DBIndex* dbIndex = new DBLevelDbIndex(databaseFolderName, bufferCapacity);
+
+    // insert
+    for (const auto& r : records)
+    {
+        std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+        dbIndex->insertRecord(r);
+    }
+
+    // sort records to make a range for search
+    std::sort(std::begin(records), std::end(records));
+
+    // get all
+    {
+        const std::vector<DBRecord> indexRecords = dbIndex->getAllRecords();
+        std::cout << "FROM INDEX" << std::endl;
+        for (const auto& r : indexRecords)
+            std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+    }
+
+    // psearch not found
+    {
+        const std::string key = std::string("ala");
+        const std::vector<DBRecord>  s = dbIndex->psearch(key);
+        if (s.size() == 0)
+            std::cout << "not found: " << key << std::endl;
+        else
+        {
+            std::cout << "found: " << key << std::endl;
+             for (const auto& r : s)
+                std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+
+        }
+    }
+
+    // psearch found
+    {
+        const std::string key = records[records.size() / 2].getKey().ToString();
+        const std::vector<DBRecord>  s = dbIndex->psearch(key);
+        if (s.size() == 0)
+            std::cout << "not found: " << key << std::endl;
+        else
+        {
+            std::cout << "found: " << key << std::endl;
+             for (const auto& r : s)
+                std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+
+        }
+    }
+
+    // rsearch not found
+    {
+        const std::string minKey = std::string("ala");
+        const std::string maxKey = std::string("ala2");
+        const std::vector<DBRecord> s = dbIndex->rsearch(minKey, maxKey);
+        if (s.size() == 0)
+            std::cout << "not found: ( " << minKey << " , " << maxKey << " )" << std::endl;
+        else
+        {
+            std::cout << "found: ( " << minKey << " , " << maxKey << " )" << std::endl;
+            for (const auto& r : s)
+                std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+        }
+    }
+
+    // rsearch found
+    {
+        const std::string minKey = records[0].getKey().ToString();
+        const std::string maxKey = records[records.size() / 2].getKey().ToString();
+
+        std::cout << "RSEARCH: { " + minKey << " ( " << DBRecordGenerator::getValFromBase64String(minKey) <<  " ) " << " , " << maxKey << " ( " << DBRecordGenerator::getValFromBase64String(maxKey) <<  " ) " <<  " }" << std::endl;
+
+        const std::vector<DBRecord> s = dbIndex->rsearch(minKey, maxKey);
+        if (s.size() == 0)
+            std::cout << "not found: ( " << minKey << " , " << maxKey << " )" << std::endl;
+        else
+        {
+            std::cout << "found: ( " << minKey << " , " << maxKey << " )" << std::endl;
+            for (const auto& r : s)
+                std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+
+        }
+    }
+
+
+    // delete all
+    {
+        for (const auto& r : records)
+            dbIndex->deleteRecord(r.getKey().ToString());
+
+        const std::vector<DBRecord> indexRecords = dbIndex->getAllRecords();
+        std::cout << "FROM INDEX AFTER DELETE" << std::endl;
+        for (const auto& r : indexRecords)
+            std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+    }
+
+    delete dbIndex;
+
+    std::cout << "============================== "<< std::endl;
+}
+
 int main()
 {
     loggerStart();
@@ -119,6 +235,7 @@ int main()
     // DBBenchmark::leveldbBenchmark();
 
     dbInMemoryIndexExample();
+    dbLevelDbIndexExample();
 
     return 0;
 }

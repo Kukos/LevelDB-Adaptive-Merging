@@ -6,6 +6,7 @@
 #include <dbLevelDbIndex.hpp>
 #include <dbLevelDbFullScan.hpp>
 #include <dbAdaptiveMergingIndex.hpp>
+#include <dbExperiment.hpp>
 
 #include <filesystem>
 #include <chrono>
@@ -501,6 +502,7 @@
     std::cout << "============================== "<< std::endl;
 }
 
+
 int main()
 {
     loggerStart();
@@ -512,7 +514,8 @@ int main()
     // dbInMemoryIndexExample();
     // dbLevelDbIndexExample();
     // dbLevelDbFullScanExample();
-    dbAdaptiveMergingExample();
+    //dbAdaptiveMergingExample();
+    DBExperiment::experimentNoModification();
 
     return 0;
 }

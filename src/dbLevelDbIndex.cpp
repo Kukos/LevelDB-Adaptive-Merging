@@ -103,11 +103,11 @@ void DBLevelDbIndex::do_flushInMemoryIndex() noexcept(true)
     entriesInLevelDb += records.size();
 
     // since we have our buffer, lets flush memtable after moving buffer to the levelDB
-    const DBRecord minKey = records[0]; // inMemoryIndex is sorted
-    const DBRecord maxKey = records[records.size() - 1]; // inMemoryIndex is sorted
-    leveldb::Slice minSlice = minKey.getKey();
-    leveldb::Slice maxSlice = maxKey.getKey();
-    db->CompactRange(&minSlice, &maxSlice);
+  //  const DBRecord minKey = records[0]; // inMemoryIndex is sorted
+  //  const DBRecord maxKey = records[records.size() - 1]; // inMemoryIndex is sorted
+  //  leveldb::Slice minSlice = minKey.getKey();
+  //  leveldb::Slice maxSlice = maxKey.getKey();
+  //  db->CompactRange(&minSlice, &maxSlice);
 
     // reset inMemoryIndex
     inMemoryIndex = std::make_unique<DBInMemoryIndex>();

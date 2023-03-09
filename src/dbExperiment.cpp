@@ -36,26 +36,22 @@ void DBExperiment::expSecondaryIndexScan(const std::vector<DBRecord>& generatedR
     // insert into database
     for (const auto& r : generatedRecords)
     {
-        std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+        // std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
         dbIndex->insertRecord(r);
     }
 
-   
 
-    // Key value swapping 
+    const auto startBatch = std::chrono::high_resolution_clock::now();
+    const auto pRecords = dbIndex->getAllRecords();
+
+    // Key value swapping
     std::vector<DBRecord> recordsWithSecKey;
-    for (const auto& r : generatedRecords)
+    for (const auto& r : pRecords)
     {
         DBRecord temp(r);
         temp.swapPrimaryKeyWithSecondaryKey();
         recordsWithSecKey.push_back(temp);
     }
-
-    
-    // sort records to make a range for search
-    std::sort(std::begin(recordsWithSecKey), std::end(recordsWithSecKey));
-
-    const auto startBatch = std::chrono::high_resolution_clock::now();
 
     // inserting into the Secondary LSMdb
     for (const auto& r : recordsWithSecKey)
@@ -65,6 +61,9 @@ void DBExperiment::expSecondaryIndexScan(const std::vector<DBRecord>& generatedR
 
    const auto endBatch = std::chrono::high_resolution_clock::now();
     log  <<  std::chrono::duration_cast<std::chrono::milliseconds>(endBatch - startBatch).count()  << "\t";
+
+    // sort records to make a range for search
+    std::sort(std::begin(recordsWithSecKey), std::end(recordsWithSecKey));
 
     const auto startBatch1 = std::chrono::high_resolution_clock::now();
     // Executing range queries
@@ -103,7 +102,7 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
     // insert (normal as prim key)
     for (const auto& r : generatedRecords)
     {
-        std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+        // std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
         dbIndex->insertRecord(r);
     }
 
@@ -158,7 +157,7 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
     // insert (normal as prim key)
     for (const auto& r : generatedRecords)
     {
-        std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+        // std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
         dbIndex->insertRecord(r);
     }
 
@@ -214,7 +213,7 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 
 void DBExperiment::experimentNoModification() noexcept(true){
 
-    
+
     LOGGER_LOG_INFO("Starting  experiments");
     std::string folderName = std::string("./expResults");
 
@@ -224,10 +223,10 @@ void DBExperiment::experimentNoModification() noexcept(true){
     std::ofstream log;
     log.open(logFileName.c_str());
 
-    
+
     log << " Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-    // database record number 
+    // database record number
     const size_t nmbRec = 10000000;
 
     // range number
@@ -262,5 +261,5 @@ void DBExperiment::experimentNoModification() noexcept(true){
 
     log << std::endl;
 
-    std::cout << "============================== "<< std::endl;
+    // std::cout << "============================== "<< std::endl;
 }

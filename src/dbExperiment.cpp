@@ -68,8 +68,9 @@ void DBExperiment::expSecondaryIndexScan(const std::vector<DBRecord>& generatedR
     const auto startBatch1 = std::chrono::high_resolution_clock::now();
     // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-       size_t bRange= static_cast<size_t>(queryCount[i]);
-       size_t eRange= static_cast<size_t>(queryCount[i] + sel*nmbRec/100);
+       size_t bRange= static_cast<size_t>(queryCount[i] * sel * nmbRec / 100);
+    size_t eRange= static_cast<size_t>((queryCount[i] + 1) * sel * nmbRec / 100);
+       
        std::vector<DBRecord> ret =  dbSecondaryIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
 
         for (const auto& r : ret)
@@ -123,9 +124,9 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
 
     // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-       size_t bRange= static_cast<size_t>(queryCount[i]);
-       size_t eRange= static_cast<size_t>(queryCount[i] + sel*nmbRec/100);
-       dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
+        size_t bRange= static_cast<size_t>(queryCount[i] * sel * nmbRec / 100);
+        size_t eRange= static_cast<size_t>((queryCount[i] + 1) * sel * nmbRec / 100);
+        dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
     }
 
     const auto endBatch = std::chrono::high_resolution_clock::now();
@@ -193,8 +194,8 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
     const auto startBatch1 = std::chrono::high_resolution_clock::now();
        // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-       size_t bRange= static_cast<size_t>(queryCount[i]);
-       size_t eRange= static_cast<size_t>(queryCount[i] + sel*nmbRec/100);
+        size_t bRange= static_cast<size_t>(queryCount[i] * sel * nmbRec / 100);
+        size_t eRange= static_cast<size_t>((queryCount[i] + 1) * sel * nmbRec / 100);
        std::vector<DBRecord> ret =  amIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
 
         for (const auto& r : ret)

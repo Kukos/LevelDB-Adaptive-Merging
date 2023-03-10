@@ -214,6 +214,36 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 }
 
 
+void DBExperiment::expDiffSelectivity() noexcept(true){
+
+    // database record number
+    const size_t nmbRec = 10000000;
+
+    // query number
+    const size_t nmbQuery = 100;
+
+    // data range (%) of the query
+    const size_t dataRange = 100;
+
+    LOGGER_LOG_INFO("Starting  experiment: different selectivity");
+    std::string folderName = std::string("./expResults_diffSelectivity");
+    std::filesystem::remove_all(folderName);
+    const std::string logFileName = folderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+    log << " Selectivity(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 1);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 2);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 3);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 5);
+
+}
+
+
+
+
 void DBExperiment::expDiffDataRange() noexcept(true){
 
     // database record number
@@ -256,6 +286,9 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
            log << std::to_string(dataRange) <<  "\t" ;    
     }
  
+    if (expType=="Selectivity"){
+           log << std::to_string(sel) <<  "\t" ;    
+    }
 
     std::random_device rd;
     std::mt19937 gen(rd());

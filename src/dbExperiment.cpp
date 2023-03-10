@@ -214,6 +214,11 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 }
 
 
+void DBExperiment::experiments() noexcept(true){
+        expDiffDataRange();
+    //expDiffSelectivity();
+}
+
 void DBExperiment::expDiffSelectivity() noexcept(true){
 
     // database record number
@@ -278,9 +283,14 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
     // std::vector<DBRecord> records = DBRecordGenerator::generateRecords(10 * 1000 * 1000, 113);
 
     // the end value of choosing must be less than n (depending on selectivity)
-    const size_t endRange = (dataRange * nmbRec)/100 - sel*nmbRec/100;
+    // First data
+    //const size_t beginRange=1;
+    //const size_t endRange = (dataRange * nmbRec)/100 - sel*nmbRec/100;
 
-    std::cout << "Data range: \t" << endRange << std::endl;
+    const size_t beginRange = nmbRec - (dataRange * nmbRec)/100 + 1;
+    const size_t endRange = beginRange + sel*nmbRec/100-1;
+
+    std::cout << "Begin range: \t" << beginRange << "End range: \t" <<  endRange << std::endl;
 
 
     if (expType=="DataRange"){
@@ -293,7 +303,7 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<size_t> distr(1, endRange);
+    std::uniform_int_distribution<size_t> distr(beginRange, endRange);
 
     std::vector<size_t> queryCount;
 

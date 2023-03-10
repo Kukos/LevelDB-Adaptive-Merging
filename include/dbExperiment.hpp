@@ -7,6 +7,7 @@ class DBExperiment{
 
     public:
 
+        static void experiments() noexcept(true);
         static void expDiffDataRange() noexcept(true);
         static void expDiffSelectivity() noexcept(true);
         static void experimentNoModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t nmbQuery, const size_t sel) noexcept(true);

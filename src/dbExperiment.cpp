@@ -238,7 +238,7 @@ void DBExperiment::experimentNoModification() noexcept(true){
     // selectivity (%) of the query
     const size_t sel = 1;
 
-    std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 10);
+    std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);
     // std::vector<DBRecord> records = DBRecordGenerator::generateRecords(10 * 1000 * 1000, 113);
 
     // the end value of choosing must be less than n (depending on selectivity)

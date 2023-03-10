@@ -264,7 +264,8 @@ void DBExperiment::expDiffDataRange() noexcept(true){
 
     log << " Data range(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-    experimentNoModification("DataRange", log, 10, nmbRec, nmbQuery, sel);
+    experimentNoModification("DataRange", log, 2, nmbRec, nmbQuery, sel);
+    experimentNoModification("DataRange", log, 5, nmbRec, nmbQuery, sel);
     experimentNoModification("DataRange", log, 20, nmbRec, nmbQuery, sel);
     experimentNoModification("DataRange", log, 50, nmbRec, nmbQuery, sel);
     experimentNoModification("DataRange", log, 100, nmbRec, nmbQuery, sel);

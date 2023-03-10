@@ -515,7 +515,7 @@ int main()
     // dbLevelDbIndexExample();
     // dbLevelDbFullScanExample();
     //dbAdaptiveMergingExample();
-    DBExperiment::experimentNoModification();
+    DBExperiment::expDiffDataRange();
 
     return 0;
 }

@@ -214,37 +214,48 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 }
 
 
-void DBExperiment::experimentNoModification() noexcept(true){
-
-
-    LOGGER_LOG_INFO("Starting  experiments");
-    std::string folderName = std::string("./expResults");
-
-    std::filesystem::remove_all(folderName);
-
-    const std::string logFileName = folderName + std::string("_log.txt");
-    std::ofstream log;
-    log.open(logFileName.c_str());
-
-
-    log << " Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+void DBExperiment::expDiffDataRange() noexcept(true){
 
     // database record number
     const size_t nmbRec = 10000000;
 
-    // range number
+    // query number
     const size_t nmbQuery = 100;
 
     // selectivity (%) of the query
     const size_t sel = 1;
 
+    LOGGER_LOG_INFO("Starting  experiment: different data range");
+    std::string folderName = std::string("./expResults_diffDataRange");
+    std::filesystem::remove_all(folderName);
+    const std::string logFileName = folderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+    log << " Data range(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+
+    experimentNoModification("DataRange", log, 10, nmbRec, nmbQuery, sel);
+    experimentNoModification("DataRange", log, 20, nmbRec, nmbQuery, sel);
+    experimentNoModification("DataRange", log, 50, nmbRec, nmbQuery, sel);
+    experimentNoModification("DataRange", log, 100, nmbRec, nmbQuery, sel);
+
+}
+void DBExperiment::experimentNoModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t nmbQuery, const size_t sel) noexcept(true){
+
+
     std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);
     // std::vector<DBRecord> records = DBRecordGenerator::generateRecords(10 * 1000 * 1000, 113);
 
     // the end value of choosing must be less than n (depending on selectivity)
-    const size_t endRange = nmbRec - sel*nmbRec/100;
+    const size_t endRange = (dataRange * nmbRec)/100 - sel*nmbRec/100;
 
-    std::cout << endRange << std::endl;
+    std::cout << "Data range: \t" << endRange << std::endl;
+
+
+    if (expType=="DataRange"){
+           log << std::to_string(dataRange) <<  "\t" ;    
+    }
+ 
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -256,17 +267,8 @@ void DBExperiment::experimentNoModification() noexcept(true){
         queryCount.push_back(distr(gen));
     }
 
-/*for (size_t i=0; i<nmbQuery; i++){
-    size_t bRange= static_cast<size_t>(queryCount[i]);
-    size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
-
-    std::cout << bRange << "\t" << eRange << std::endl;
-}*/
-
-//    log << std::to_string(sel) << "\t";
-
     DBExperiment::expFullScan(records, log, queryCount, nmbRec,  sel);
-      DBExperiment::expSecondaryIndexScan(records, log, queryCount, nmbRec,  sel);
+    DBExperiment::expSecondaryIndexScan(records, log, queryCount, nmbRec,  sel);
     DBExperiment::expAdaptiveMerging(records, log, queryCount, nmbRec,  sel);
 
     log << std::endl;

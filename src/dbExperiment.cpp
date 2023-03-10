@@ -255,7 +255,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     const size_t nmbRec = 10000000;
 
     // query number
-    const size_t nmbQuery = 100;
+    const size_t nmbQuery = 1000;
 
     // selectivity (%) of the query
     const size_t sel = 1;

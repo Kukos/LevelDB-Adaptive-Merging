@@ -288,8 +288,8 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
     //const size_t endRange = (dataRange * nmbRec)/100 - sel*nmbRec/100;
 
 // Last data
-    const size_t beginRange = nmbRec - (dataRange * nmbRec)/100 + 1;
-    const size_t endRange = beginRange + sel*nmbRec/100-1;
+    const size_t beginRange = nmbRec - (dataRange * nmbRec)/100;
+    const size_t endRange = beginRange + dataRange*nmbRec/100-1 - sel*nmbRec/100;
 
     std::cout << "Begin range: \t" << beginRange << "End range: \t" <<  endRange << std::endl;
 

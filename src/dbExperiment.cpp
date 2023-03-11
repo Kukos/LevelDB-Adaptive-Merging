@@ -255,7 +255,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     const size_t nmbRec = 10000000;
 
     // query number
-    const size_t nmbQuery = 1000;
+    const size_t nmbQuery = 100;
 
     // selectivity (%) of the query
     const size_t sel = 1;
@@ -287,6 +287,7 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
     //const size_t beginRange=1;
     //const size_t endRange = (dataRange * nmbRec)/100 - sel*nmbRec/100;
 
+// Last data
     const size_t beginRange = nmbRec - (dataRange * nmbRec)/100 + 1;
     const size_t endRange = beginRange + sel*nmbRec/100-1;
 

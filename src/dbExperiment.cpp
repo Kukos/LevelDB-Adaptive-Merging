@@ -70,8 +70,8 @@ void DBExperiment::expSecondaryIndexScan(const std::vector<DBRecord>& generatedR
     for (size_t i=0; i<queryCount.size(); i++){
 
 
-    size_t bRange= static_cast<size_t>(queryCount[i]);
-    size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
+    size_t bRange= static_cast<size_t>(queryCount[0]);
+    size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
        
        std::vector<DBRecord> ret =  dbSecondaryIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
 
@@ -126,8 +126,8 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
 
     // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-      size_t bRange= static_cast<size_t>(queryCount[i]);
-    size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
+      size_t bRange= static_cast<size_t>(queryCount[0]);
+    size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
         dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
     }
 
@@ -196,8 +196,8 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
     const auto startBatch1 = std::chrono::high_resolution_clock::now();
        // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-        size_t bRange= static_cast<size_t>(queryCount[i]);
-        size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
+        size_t bRange= static_cast<size_t>(queryCount[0]);
+        size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
         std::vector<DBRecord> ret =  amIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
 
         for (const auto& r : ret)
@@ -215,14 +215,15 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 
 
 void DBExperiment::experiments() noexcept(true){
-        expDiffDataRange();
+    //    expDiffDataRange();
     //expDiffSelectivity();
+    expDiffQueryNumber();
 }
 
 void DBExperiment::expDiffSelectivity() noexcept(true){
 
     // database record number
-    const size_t nmbRec = 10000000;
+    const size_t nmbRec = 1000;
 
     // query number
     const size_t nmbQuery = 100;
@@ -246,6 +247,34 @@ void DBExperiment::expDiffSelectivity() noexcept(true){
 
 }
 
+
+void DBExperiment::expDiffQueryNumber() noexcept(true){
+
+    // database record number
+    const size_t nmbRec = 10000000;
+
+    // selectivity (%) of the query
+    const size_t sel = 1;
+
+    // data range (%) of the query
+    const size_t dataRange = 20;
+
+    LOGGER_LOG_INFO("Starting  experiment: different query number");
+    std::string folderName = std::string("./expResults_diffQueryNumber");
+    std::filesystem::remove_all(folderName);
+    const std::string logFileName = folderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+    log << " QueryNumber \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 20, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+
+}
 
 
 
@@ -301,6 +330,12 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
     if (expType=="Selectivity"){
            log << std::to_string(sel) <<  "\t" ;    
     }
+
+    if (expType=="QueryNumber"){
+           log << std::to_string(nmbQuery) <<  "\t" ;    
+    }
+
+    
 
     std::random_device rd;
     std::mt19937 gen(rd());

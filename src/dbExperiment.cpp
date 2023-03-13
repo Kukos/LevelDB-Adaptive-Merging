@@ -313,7 +313,8 @@ void DBExperiment::expFullScanDBModification(const std::vector<DBRecord>& genera
 void DBExperiment::experiments() noexcept(true){
     //    expDiffDataRange();
     //expDiffSelectivity();
-    expDiffQueryNumber();
+    expDiffQueryNumber(20);
+    expDiffQueryNumber(80);
 }
 
 void DBExperiment::expDiffSelectivity() noexcept(true){
@@ -328,7 +329,7 @@ void DBExperiment::expDiffSelectivity() noexcept(true){
     const size_t dataRange = 100;
 
     LOGGER_LOG_INFO("Starting  experiment: different selectivity");
-    std::string folderName = std::string("./expResults_diffSelectivity");
+    std::string folderName = std::string("./expDiffSelectivity");
     std::filesystem::remove_all(folderName);
     const std::string logFileName = folderName + std::string("_log.txt");
     std::ofstream log;
@@ -344,7 +345,7 @@ void DBExperiment::expDiffSelectivity() noexcept(true){
 }
 
 
-void DBExperiment::expDiffQueryNumber() noexcept(true){
+void DBExperiment::expDiffQueryNumber(size_t dataRange) noexcept(true){
 
     // database record number
     const size_t nmbRec = 10000000;
@@ -353,12 +354,14 @@ void DBExperiment::expDiffQueryNumber() noexcept(true){
     const size_t sel = 1;
 
     // data range (%) of the query
-    const size_t dataRange = 20;
+//    const size_t dataRange = 20;
 
     LOGGER_LOG_INFO("Starting  experiment: different query number");
-    std::string folderName = std::string("./expResults_diffQueryNumber");
+    std::string folderName = std::string("./expDiffQueryNumberDataRange");
     std::filesystem::remove_all(folderName);
-    const std::string logFileName = folderName + std::string("_log.txt");
+    const std::string logFileName = folderName + std::to_string(dataRange) + std::string("_log.txt"); 
+    
+
     std::ofstream log;
     log.open(logFileName.c_str());
 
@@ -369,6 +372,7 @@ void DBExperiment::expDiffQueryNumber() noexcept(true){
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 1000, sel);
 
 }
 
@@ -386,7 +390,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     const size_t sel = 1;
 
     LOGGER_LOG_INFO("Starting  experiment: different data range");
-    std::string folderName = std::string("./expResults_diffDataRange");
+    std::string folderName = std::string("./expDiffDataRange");
     std::filesystem::remove_all(folderName);
     const std::string logFileName = folderName + std::string("_log.txt");
     std::ofstream log;

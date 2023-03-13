@@ -254,7 +254,7 @@ void DBExperiment::expDiffQueryNumber() noexcept(true){
     const size_t nmbRec = 10000000;
 
     // selectivity (%) of the query
-    const size_t sel = 1;
+    const double sel = 0.1;
 
     // data range (%) of the query
     const size_t dataRange = 20;
@@ -269,10 +269,10 @@ void DBExperiment::expDiffQueryNumber() noexcept(true){
     log << " QueryNumber \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 20, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
 
 }
 
@@ -305,7 +305,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     experimentNoModification("DataRange", log, 100, nmbRec, nmbQuery, sel);
 
 }
-void DBExperiment::experimentNoModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t nmbQuery, const size_t sel) noexcept(true){
+void DBExperiment::experimentNoModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t nmbQuery, const double sel) noexcept(true){
 
 
     std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);

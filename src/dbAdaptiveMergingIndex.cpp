@@ -6,6 +6,10 @@
 #include <fstream>
 #include <iostream>
 
+#include <dbRecordGenerator.hpp>
+
+
+
 std::vector<std::reference_wrapper<DBAdaptiveMergingIndex::DBAdaptiveLog::DBAdaptiveLogEntry>> DBAdaptiveMergingIndex::DBAdaptiveLog::getALLogEntriesForRange(const std::string& minKey, const std::string& maxKey) noexcept(true)
 {
     if (minKey > maxKey)
@@ -390,6 +394,9 @@ std::vector<DBRecord> DBAdaptiveMergingIndex::do_rsearch(const std::string& minK
                             {
                                 return secondaryIndex->rsearch(sMinKey, sMaxKey);
                             };
+
+    const auto startTimerS = std::chrono::high_resolution_clock::now();
+
     std::future<std::vector<DBRecord>> secIndexRSearchTask = dbThreadPool->threadPool.submit(rsearchF, minKey, maxKey);
 
     const std::vector<DBRecord> retAL = adaptiveLog->rsearch(minKey, maxKey);
@@ -399,9 +406,25 @@ std::vector<DBRecord> DBAdaptiveMergingIndex::do_rsearch(const std::string& minK
     ret.insert(std::end(ret), std::begin(retAL), std::end(retAL));
     ret.insert(std::end(ret), std::begin(retSecIndex), std::end(retSecIndex));
 
+    const auto endTimerS = std::chrono::high_resolution_clock::now();
+
+    const auto startTimerI = std::chrono::high_resolution_clock::now();
+
     // ret is ready, time to add touched entries from AL to secIndex
     for (const auto& r : retAL)
         secondaryIndex->insertRecord(r);
+
+    const auto endTimerI = std::chrono::high_resolution_clock::now();
+
+    LOGGER_LOG_DEBUG("AM rsearch: {} {}, took {}, get {} from AL, {} from secIndex, inserting {} entries took {}, return to user {}",
+                     DBRecordGenerator::getValFromBase64String(minKey),
+                     DBRecordGenerator::getValFromBase64String(maxKey),
+                     std::chrono::duration_cast<std::chrono::milliseconds>(endTimerS - startTimerS).count(),
+                     retAL.size(),
+                     retSecIndex.size(),
+                     retAL.size(),
+                     std::chrono::duration_cast<std::chrono::milliseconds>(endTimerI - startTimerI).count(),
+                     ret.size());
 
     return ret;
 }

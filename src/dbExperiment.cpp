@@ -109,8 +109,6 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
         dbIndex->insertRecord(r);
     }
 
-
-
     std::vector<DBRecord> recordsWithSecKey;
     for (const auto& r : generatedRecords)
     {
@@ -126,8 +124,8 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
 
     // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-      size_t bRange= static_cast<size_t>(queryCount[0]);
-    size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
+        size_t bRange= static_cast<size_t>(queryCount[0]);
+        size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
         dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
     }
 
@@ -214,6 +212,107 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 }
 
 
+void DBExperiment::expFullScanDBModification(const std::vector<DBRecord>& generatedRecords, std::ofstream& log,  std::vector<size_t>& queryCount, const size_t nmbRec,  const size_t sel) noexcept(true){
+
+    std::cout << "=== LEVELDB FULL SCAN  === "<< std::endl;
+
+     constexpr size_t bufferCapacity = 100000;
+
+    // Main LSMdb creation
+    const std::string databaseFolderName = std::string("./fullscan");
+    std::filesystem::remove_all(databaseFolderName);
+    DBIndex* dbIndex = new DBLevelDbFullScan(databaseFolderName, bufferCapacity);
+
+    // insert (normal as prim key)
+    for (const auto& r : generatedRecords)
+    {
+        // std::cout << "{ " + r.getKey().ToString() << " ( " << DBRecordGenerator::getValFromBase64String(r.getKey().ToString()) <<  " ) " << " , " << r.getVal().ToString() << " }" << std::endl;
+        dbIndex->insertRecord(r);
+    }
+
+    std::vector<DBRecord> recordsWithSecKey;
+    for (const auto& r : generatedRecords)
+    {
+        DBRecord temp(r);
+        temp.swapPrimaryKeyWithSecondaryKey();
+        recordsWithSecKey.push_back(temp);
+    }
+
+
+
+    const auto startBatch = std::chrono::high_resolution_clock::now();
+
+    // Number of batches
+    size_t nBatch = 10;
+    size_t nQueryInBatch = 10;
+    size_t nInsertInBatch = 10;
+    size_t nDeleteInBatch = 10;
+
+    for (size_t i=0; i<nBatch; i++){
+
+
+        // search nQueryInBatch range queries
+        {
+            for (size_t j=0; j<nQueryInBatch; j++){
+                size_t bRange= static_cast<size_t>(queryCount[j]);
+                size_t eRange= static_cast<size_t>(queryCount[j]  + sel * nmbRec / 100);
+                dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
+             }
+        }
+
+        // inserting in batch
+        {
+                std::vector<DBRecord> recordsToInsert = DBRecordGenerator::generateRecords(nInsertInBatch, 113);
+                for (const auto& r : recordsToInsert)
+                {
+                    dbIndex->insertRecord(r);
+                }
+
+                for (const auto& r : recordsToInsert)
+                {
+                    DBRecord temp(r);
+                    temp.swapPrimaryKeyWithSecondaryKey();
+                    recordsWithSecKey.push_back(temp);
+                }      
+
+                // sort records to make a range for searchfuther operations
+                std::sort(std::begin(recordsWithSecKey), std::end(recordsWithSecKey));   
+        }
+    
+        // deleting in batch
+
+        {
+                std::random_device rd;
+                std::mt19937 gen(rd());
+                std::uniform_int_distribution<size_t> distr(1, recordsWithSecKey.size());
+
+                for (size_t j=0; j<nDeleteInBatch; j++){
+                    size_t elemToDelete = distr(gen);
+                    DBRecord recToDel = recordsWithSecKey[elemToDelete];
+                    dbIndex->deleteRecord(recToDel.getKey().ToString());
+                    recordsWithSecKey.erase(recordsWithSecKey.begin() + static_cast<unsigned>(elemToDelete));
+                }
+        }
+
+    }
+
+
+
+    // Executing range queries
+    
+
+    const auto endBatch = std::chrono::high_resolution_clock::now();
+    log  <<  std::chrono::duration_cast<std::chrono::milliseconds>(endBatch - startBatch).count() << "\t";
+
+    delete dbIndex;
+
+
+}
+
+
+
+
+
 void DBExperiment::experiments() noexcept(true){
     //    expDiffDataRange();
     //expDiffSelectivity();
@@ -254,7 +353,7 @@ void DBExperiment::expDiffQueryNumber() noexcept(true){
     const size_t nmbRec = 10000000;
 
     // selectivity (%) of the query
-    const double sel = 0.1;
+    const size_t sel = 1;
 
     // data range (%) of the query
     const size_t dataRange = 20;
@@ -305,7 +404,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     experimentNoModification("DataRange", log, 100, nmbRec, nmbQuery, sel);
 
 }
-void DBExperiment::experimentNoModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t nmbQuery, const double sel) noexcept(true){
+void DBExperiment::experimentNoModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t nmbQuery, const size_t sel) noexcept(true){
 
 
     std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);

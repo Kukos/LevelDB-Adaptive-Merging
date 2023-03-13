@@ -141,6 +141,32 @@ void DBAdaptiveMergingIndex::DBAdaptiveLog::flushRamBuffer() noexcept(true)
     ramBuffer = std::make_unique<DBInMemoryIndex>();
 }
 
+
+bool DBAdaptiveMergingIndex::DBAdaptiveLog::isQueryFullInJournal(const std::string& minKey, const std::string& maxKey) noexcept(true)
+{
+    for (const auto& range : queryJournal)
+        if (range.first <= minKey && range.second >= maxKey) // TODO: test this formula
+            return true; // query is in range
+
+    return false;
+}
+
+void DBAdaptiveMergingIndex::DBAdaptiveLog::journalReorganization() noexcept(true)
+{
+    // TODO: check if std::map will be faster
+    std::sort(std::begin(queryJournal), std::end(queryJournal), [](const auto &left, const auto& right) { return left.first < right.first; });
+
+    // merge ranges
+}
+
+void DBAdaptiveMergingIndex::DBAdaptiveLog::addQueryToJournal(const std::string& minKey, const std::string& maxKey) noexcept(true)
+{
+    queryJournal.push_back(std::make_pair(minKey, maxKey));
+    journalReorganization();
+}
+
+
+
 void DBAdaptiveMergingIndex::DBAdaptiveLog::insertRecord(const DBRecord& r) noexcept(true)
 {
     ramBuffer->insertRecord(r);
@@ -150,6 +176,14 @@ void DBAdaptiveMergingIndex::DBAdaptiveLog::insertRecord(const DBRecord& r) noex
 
 void DBAdaptiveMergingIndex::DBAdaptiveLog::deleteRecord(const std::string& key) noexcept(true)
 {
+
+    if (isQueryFullInJournal(key, key))
+    {
+        LOGGER_LOG_DEBUG("DeleteRecord: key {} is already in index, nothing to do", key);
+        return; // nothing to do
+    }
+
+
     ramBuffer->deleteRecord(key);
 
     const std::vector<std::reference_wrapper<DBAdaptiveMergingIndex::DBAdaptiveLog::DBAdaptiveLogEntry>> alLogVec = getALLogEntriesForRange(key, key);
@@ -203,6 +237,9 @@ void DBAdaptiveMergingIndex::DBAdaptiveLog::deleteRecord(const std::string& key)
     // wait for tasks
     for (const auto& t : tasks)
         t.wait();
+
+    // record has been deleted, we should skip AL in case of searching for record
+    addQueryToJournal(key, key);
 }
 
 std::vector<DBRecord> DBAdaptiveMergingIndex::DBAdaptiveLog::psearch(const std::string& key) noexcept(true)
@@ -214,6 +251,12 @@ std::vector<DBRecord> DBAdaptiveMergingIndex::DBAdaptiveLog::rsearch(const std::
 {
     if (minKey > maxKey)
         return std::vector<DBRecord>();
+
+    if (isQueryFullInJournal(minKey, maxKey))
+    {
+        LOGGER_LOG_DEBUG("RSEARCH: < {}, {} > range is already in index, nothing to do", minKey, maxKey);
+        return std::vector<DBRecord>(); // nothing to do
+    }
 
     std::vector<DBRecord> ret = ramBuffer->rsearch(minKey, maxKey);
 
@@ -277,6 +320,8 @@ std::vector<DBRecord> DBAdaptiveMergingIndex::DBAdaptiveLog::rsearch(const std::
     for (const auto& vec : recordsFromTasks)
         ret.insert(std::end(ret), std::begin(vec), std::end(vec));
 
+    addQueryToJournal(minKey, maxKey);
+    
     return ret;
 }
 

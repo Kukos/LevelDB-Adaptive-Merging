@@ -254,7 +254,7 @@ std::vector<DBRecord> DBAdaptiveMergingIndex::DBAdaptiveLog::rsearch(const std::
 
     if (isQueryFullInJournal(minKey, maxKey))
     {
-        LOGGER_LOG_DEBUG("RSEARCH: < {}, {} > range is already in index, nothing to do", minKey, maxKey);
+        LOGGER_LOG_DEBUG("RSEARCH: < {}, {} > range is already in index, nothing to do", minKey, maxKey);      
         return std::vector<DBRecord>(); // nothing to do
     }
 
@@ -321,7 +321,7 @@ std::vector<DBRecord> DBAdaptiveMergingIndex::DBAdaptiveLog::rsearch(const std::
         ret.insert(std::end(ret), std::begin(vec), std::end(vec));
 
     addQueryToJournal(minKey, maxKey);
-    
+
     return ret;
 }
 

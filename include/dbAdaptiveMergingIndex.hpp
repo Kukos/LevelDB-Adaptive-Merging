@@ -12,6 +12,7 @@
 #include <mutex>
 #include <filesystem>
 #include <functional>
+#include <utility>
 
 class DBAdaptiveMergingIndex : public DBIndex
 {
@@ -57,10 +58,14 @@ private:
         size_t alRecordsNumber;
         std::vector<DBAdaptiveMergingIndex::DBAdaptiveLog::DBAdaptiveLogEntry> alFiles;
         size_t newFileId;
+        std::vector<std::pair<std::string, std::string>> queryJournal;
 
         void copyPrimIndexIntoAl() noexcept(true);
         void flushRamBuffer() noexcept(true);
         std::vector<std::reference_wrapper<DBAdaptiveMergingIndex::DBAdaptiveLog::DBAdaptiveLogEntry>> getALLogEntriesForRange(const std::string& minKey, const std::string& maxKey) noexcept(true);
+        bool isQueryFullInJournal(const std::string& minKey, const std::string& maxKey) noexcept(true);
+        void journalReorganization() noexcept(true);
+        void addQueryToJournal(const std::string& minKey, const std::string& maxKey) noexcept(true);
 
     public:
         void insertRecord(const DBRecord& r) noexcept(true) override;

@@ -22,11 +22,11 @@ void DBExperiment::experiments() noexcept(true){
     //    expDiffDataRange();
     //expDiffSelectivity();
 
- //   expDiffBatchNumberDBModification();
+    expDiffBatchNumberDBModification();
     
-    expDiffQueryNumber(2);
-    expDiffQueryNumber(5);
-    expDiffQueryNumber(10);
+ //   expDiffQueryNumber(2);
+ //   expDiffQueryNumber(5);
+ //   expDiffQueryNumber(10);
 
 }
 
@@ -155,9 +155,6 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
 void DBExperiment::expAdaptiveMerging(const std::vector<DBRecord>& generatedRecords, std::ofstream& log,  std::vector<size_t>& queryCount, const size_t nmbRec,  const size_t sel) noexcept(true){
 
 std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
-
-    //constexpr size_t bufferCapacity = 1000;
-    //constexpr size_t amBufferCapacity = 10000;
 
      constexpr size_t bufferCapacity = 100000;
      constexpr size_t amBufferCapacity = 10000;

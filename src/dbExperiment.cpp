@@ -19,10 +19,10 @@
 
 
 void DBExperiment::experiments() noexcept(true){
-    //    expDiffDataRange();
-    //expDiffSelectivity();
+    // expDiffDataRange();
+    expDiffSelectivity();
 
-    expDiffBatchNumberDBModification();
+  //  expDiffBatchNumberDBModification();
     
  //   expDiffQueryNumber(2);
  //   expDiffQueryNumber(5);
@@ -227,13 +227,13 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 void DBExperiment::expDiffSelectivity() noexcept(true){
 
     // database record number
-    const size_t nmbRec = 1000;
+    const size_t nmbRec = 10000000;
 
     // query number
     const size_t nmbQuery = 100;
 
     // data range (%) of the query
-    const size_t dataRange = 100;
+    const size_t dataRange = 40;
 
     LOGGER_LOG_INFO("Starting  experiment: different selectivity");
     std::string folderName = std::string("./expDiffSelectivity");
@@ -246,8 +246,9 @@ void DBExperiment::expDiffSelectivity() noexcept(true){
 
     experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 1);
     experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 2);
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 3);
     experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 5);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 10);
+
 
 }
 

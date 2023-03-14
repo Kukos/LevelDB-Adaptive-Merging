@@ -313,8 +313,10 @@ void DBExperiment::expFullScanDBModification(const std::vector<DBRecord>& genera
 void DBExperiment::experiments() noexcept(true){
     //    expDiffDataRange();
     //expDiffSelectivity();
-    expDiffQueryNumber(20);
-    expDiffQueryNumber(80);
+    expDiffQueryNumber(2);
+    expDiffQueryNumber(5);
+    expDiffQueryNumber(10);
+    
 }
 
 void DBExperiment::expDiffSelectivity() noexcept(true){
@@ -370,9 +372,9 @@ void DBExperiment::expDiffQueryNumber(size_t dataRange) noexcept(true){
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 20, sel);
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 1000, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 1000, sel);
 
 }
 

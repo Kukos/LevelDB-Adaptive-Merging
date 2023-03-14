@@ -28,9 +28,9 @@ void DBExperiment::expDiffBatchNumberDBModification() noexcept(true){
 
     // Number of batches
     size_t nBatch = 10;
-    size_t nQueryInBatch = 100;
-    size_t nInsertInBatch = 20;
-    size_t nDeleteInBatch = 10;
+    size_t nQueryInBatch = 10;
+    size_t nInsertInBatch = 10;
+    size_t nDeleteInBatch = 5;
 
     LOGGER_LOG_INFO("Starting  experiment: db modification");
     std::string folderName = std::string("./expDiffBatchNumber");
@@ -415,6 +415,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                 }
 
         }
+        std::cout << "Batch: \t" << i << " completed" << std::endl;
 
     }
   

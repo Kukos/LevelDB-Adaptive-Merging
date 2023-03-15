@@ -21,7 +21,8 @@
 void DBExperiment::experiments() noexcept(true){
     // expDiffDataRange();
     // expDiffSelectivity();
-    expDiffDataRange();
+
+    expDiffDataSize();
 
   //  expDiffBatchNumberDBModification();
     
@@ -224,6 +225,37 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
     delete amIndex;
 }
 
+void DBExperiment::expDiffDataSize() noexcept(true){
+
+    // database record number
+    //const size_t nmbRec = 10000000;
+
+    // query number
+    const size_t nmbQuery = 50;
+
+    // data range (%) of the query
+    const size_t dataRange = 40;
+
+    // selectivity (%) of the query
+    const size_t sel = 1;
+
+    LOGGER_LOG_INFO("Starting  experiment: different data size");
+    std::string folderName = std::string("./expDiffDataSize");
+    std::filesystem::remove_all(folderName);
+    const std::string logFileName = folderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+    log << " DataSize \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+
+    experimentNoModification("DataSize", log, dataRange, 1000000, nmbQuery, sel);
+    experimentNoModification("DataSize", log, dataRange, 5000000, nmbQuery, sel);
+    experimentNoModification("DataSize", log, dataRange, 10000000, nmbQuery, sel);
+    experimentNoModification("DataSize", log, dataRange, 20000000, nmbQuery, sel);
+    experimentNoModification("DataSize", log, dataRange, 50000000, nmbQuery, sel);
+
+}
+
 
 void DBExperiment::expDiffSelectivity() noexcept(true){
 
@@ -346,6 +378,10 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
 
     if (expType=="QueryNumber"){
            log << std::to_string(nmbQuery) <<  "\t" ;    
+    }
+
+    if (expType=="DataSize"){
+        log << std::to_string(nmbRec) <<  "\t" ;    
     }
 
     

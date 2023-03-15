@@ -22,13 +22,13 @@ void DBExperiment::experiments() noexcept(true){
     // expDiffDataRange();
     // expDiffSelectivity();
 
-    expDiffDataSize();
+    // expDiffDataSize();
 
   //  expDiffBatchNumberDBModification();
     
  //   expDiffQueryNumber(2);
- //   expDiffQueryNumber(5);
- //   expDiffQueryNumber(10);
+    expDiffQueryNumber(5);
+    expDiffQueryNumber(10);
 
 }
 
@@ -227,9 +227,6 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 
 void DBExperiment::expDiffDataSize() noexcept(true){
 
-    // database record number
-    //const size_t nmbRec = 10000000;
-
     // query number
     const size_t nmbQuery = 50;
 
@@ -312,7 +309,7 @@ void DBExperiment::expDiffQueryNumber(size_t dataRange) noexcept(true){
 //    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
 //    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
     experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
 
 
     log.close();

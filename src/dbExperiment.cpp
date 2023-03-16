@@ -308,8 +308,8 @@ void DBExperiment::expDiffQueryNumber(size_t dataRange) noexcept(true){
 //    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 20, sel);
 //    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
 //    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
-    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
- //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+ //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
+   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
 
 
     log.close();

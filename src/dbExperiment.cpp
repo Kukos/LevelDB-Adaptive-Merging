@@ -20,15 +20,15 @@
 
 void DBExperiment::experiments() noexcept(true){
     // expDiffDataRange();
-    // expDiffSelectivity();
+     expDiffSelectivity();
 
     // expDiffDataSize();
 
   //  expDiffBatchNumberDBModification();
     
  //   expDiffQueryNumber(2);
-    expDiffQueryNumber(5);
-    expDiffQueryNumber(10);
+  //  expDiffQueryNumber(5);
+  //  expDiffQueryNumber(10);
 
 }
 
@@ -274,11 +274,12 @@ void DBExperiment::expDiffSelectivity() noexcept(true){
 
     log << " Selectivity(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 1);
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 2);
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 5);
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 10);
-
+    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 1);
+    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 2);
+    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 5);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 7);
+    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 10);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 20);
 
 }
 

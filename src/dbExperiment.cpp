@@ -19,8 +19,8 @@
 
 
 void DBExperiment::experiments() noexcept(true){
-    // expDiffDataRange();
-     expDiffSelectivity();
+     expDiffDataRange();
+    // expDiffSelectivity();
 
     // expDiffDataSize();
 
@@ -394,9 +394,9 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
         queryCount.push_back(distr(gen));
     }
 
-    DBExperiment::expFullScan(records, log, queryCount, nmbRec,  sel);
-    DBExperiment::expSecondaryIndexScan(records, log, queryCount, nmbRec,  sel);
-    DBExperiment::expAdaptiveMerging(records, log, queryCount, nmbRec,  sel);
+    expFullScan(records, log, queryCount, nmbRec,  sel);
+    expSecondaryIndexScan(records, log, queryCount, nmbRec,  sel);
+    expAdaptiveMerging(records, log, queryCount, nmbRec,  sel);
 
     log << std::endl;
 

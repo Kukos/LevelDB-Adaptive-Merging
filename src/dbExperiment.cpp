@@ -328,7 +328,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     const size_t nmbQuery = 100;
 
     // selectivity (%) of the query
-    const size_t sel = 1;
+    const size_t sel = 3;
 
     LOGGER_LOG_INFO("Starting  experiment: different data range");
     std::string folderName = std::string("./expDiffDataRange");
@@ -352,7 +352,6 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
 
 
     std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);
-    // std::vector<DBRecord> records = DBRecordGenerator::generateRecords(10 * 1000 * 1000, 113);
 
     // the end value of choosing must be less than n (depending on selectivity)
     // First data

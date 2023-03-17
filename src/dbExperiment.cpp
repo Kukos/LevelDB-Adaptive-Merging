@@ -328,7 +328,7 @@ void DBExperiment::expDiffDataRange() noexcept(true){
     const size_t nmbQuery = 100;
 
     // selectivity (%) of the query
-    const size_t sel = 5;
+    const size_t sel = 4;
 
     LOGGER_LOG_INFO("Starting  experiment: different data range");
     std::string folderName = std::string("./expDiffDataRange");

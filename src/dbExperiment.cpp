@@ -19,8 +19,8 @@
 
 
 void DBExperiment::experiments() noexcept(true){
-     expDiffDataRange();
-    // expDiffSelectivity();
+     // expDiffDataRange();
+     expDiffSelectivity();
 
     // expDiffDataSize();
 
@@ -185,8 +185,6 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
-
-
     std::vector<DBRecord> recordsWithSecKey;
     for (const auto& r : generatedRecords)
     {
@@ -254,6 +252,40 @@ void DBExperiment::expDiffDataSize() noexcept(true){
 }
 
 
+void DBExperiment::expDiffThread() noexcept(true){
+
+    // database record number
+    const size_t nmbRec = 10000000;
+
+    // query number
+    const size_t nmbQuery = 100;
+
+    // data range (%) of the query
+    const size_t dataRange = 40;
+
+    // selectivity (%) of the query
+    const size_t sel = 1;
+
+    LOGGER_LOG_INFO("Starting  experiment: different thread number");
+    std::string folderName = std::string("./expDiffThread");
+    std::filesystem::remove_all(folderName);
+    const std::string logFileName = folderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+    log << " Thread Number(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+
+    size_t threads[] = {1, 2, 4, 8, 16, 32, 64};
+    for (const auto t : threads){
+    dbThreadPoolInit(t); // max t watkow na AL
+    experimentNoModification("ThreadNumber", log, dataRange, nmbRec, nmbQuery, sel);
+    //DBBenchmark::leveldbBenchmark(); // tutaj jakos zmienic nazwy plikow czy cos aby stworzyc plik z czasem per watek
+    }
+
+}
+
+
+
 void DBExperiment::expDiffSelectivity() noexcept(true){
 
     // database record number
@@ -274,12 +306,12 @@ void DBExperiment::expDiffSelectivity() noexcept(true){
 
     log << " Selectivity(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 1);
+    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 1);
     //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 2);
     //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 5);
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 7);
+    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 7);
     //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 10);
-    experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 20);
+    //experimentNoModification("Selectivity", log, dataRange, nmbRec, nmbQuery, 20);
 
 }
 
@@ -381,6 +413,10 @@ void DBExperiment::experimentNoModification(std::string expType, std::ofstream& 
         log << std::to_string(nmbRec) <<  "\t" ;    
     }
 
+    if (expType=="ThreadNumber"){
+        log << std::to_string(nmbRec) <<  "\t" ;    
+    }
+    
     
 
     std::random_device rd;

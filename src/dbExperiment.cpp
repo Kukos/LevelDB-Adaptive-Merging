@@ -22,7 +22,9 @@ void DBExperiment::experiments() noexcept(true){
 
     //expDiffThread();
      // expDiffDataRange();
-     expDiffSelectivity();
+     //expDiffSelectivity();
+
+     expDiffQueryInBatchNumberDBModification();
 
     // expDiffDataSize();
 

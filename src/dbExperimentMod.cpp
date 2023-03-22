@@ -16,6 +16,40 @@
 #include <fstream>
 #include <random>
 
+void DBExperiment::expDiffQueryInBatchNumberDBModification() noexcept(true){
+
+    // database record number
+    const size_t nmbRec = 10000000;
+
+    // selectivity (%) of the query
+    const size_t sel = 1;
+
+    size_t nDataRange = 50;
+
+    // Number of batches
+    size_t nBatch = 10;
+
+    size_t nInsertInBatch = 10;
+    size_t nDeleteInBatch = 5;
+
+    LOGGER_LOG_INFO("Starting  experiment: DiffQueryInBatchNumber");
+    std::string folderName = std::string("./expDiffQueryInBatchNumber");
+    std::filesystem::remove_all(folderName);
+    const std::string logFileName = folderName + std::string("_log.txt");
+    std::ofstream log;
+    log.open(logFileName.c_str());
+
+
+    log << " QueryInBatch \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
+
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 2, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 5, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 10, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 20, nInsertInBatch, nDeleteInBatch);
+
+    log.close();
+
+}
 
 
 void DBExperiment::expDiffBatchNumberDBModification() noexcept(true){
@@ -32,7 +66,7 @@ void DBExperiment::expDiffBatchNumberDBModification() noexcept(true){
     size_t nInsertInBatch = 10;
     size_t nDeleteInBatch = 5;
 
-    LOGGER_LOG_INFO("Starting  experiment: db modification");
+    LOGGER_LOG_INFO("Starting  experiment: DiffBatchNumber");
     std::string folderName = std::string("./expDiffBatchNumber");
     std::filesystem::remove_all(folderName);
     const std::string logFileName = folderName + std::string("_log.txt");
@@ -42,7 +76,10 @@ void DBExperiment::expDiffBatchNumberDBModification() noexcept(true){
 
     log << " Data range(%) \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-    experimentWithDBModification("BatchSize", log, 2, nmbRec,  sel, nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("BatchSize", log, 10, nmbRec,  sel, nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("BatchSize", log, 20, nmbRec,  sel, nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("BatchSize", log, 50, nmbRec,  sel, nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("BatchSize", log, 80, nmbRec,  sel, nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch);
 
     log.close();
 
@@ -180,6 +217,12 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch) noexcept(true){
     const size_t endRange = beginRange + dataRange*nmbRec/100-1 - sel*nmbRec/100;
 
     std::cout << "Begin range: \t" << beginRange << "End range: \t" <<  endRange << std::endl;
+
+
+
+    if (expType=="QueryInBatch"){
+           log << std::to_string(nQueryInBatch) <<  "\t" ;    
+    }
 
 
     if (expType=="BatchSize"){

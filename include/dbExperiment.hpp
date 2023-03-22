@@ -23,6 +23,7 @@ class DBExperiment{
         
 
         static void expDiffBatchNumberDBModification() noexcept(true);
+        static void expDiffQueryInBatchNumberDBModification() noexcept(true);
 
         static void experimentWithDBModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec, const size_t sel,
         const size_t nBatch, const size_t nQueryInBatch,

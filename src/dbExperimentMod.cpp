@@ -19,7 +19,7 @@
 void DBExperiment::expDiffQueryInBatchNumberDBModification() noexcept(true){
 
     // database record number
-    const size_t nmbRec = 1000000;
+    const size_t nmbRec = 10000000;
 
     // selectivity (%) of the query
     const size_t sel = 1;
@@ -27,7 +27,9 @@ void DBExperiment::expDiffQueryInBatchNumberDBModification() noexcept(true){
     size_t nDataRange = 50;
 
     // Number of batches
-    size_t nBatch = 5;
+    //size_t nBatch = 10;
+
+    size_t nBatch = 10;
 
     size_t nInsertInBatch = 10;
     size_t nDeleteInBatch = 5;
@@ -42,10 +44,10 @@ void DBExperiment::expDiffQueryInBatchNumberDBModification() noexcept(true){
 
     log << " QueryInBatch \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-//    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 2, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 2, nInsertInBatch, nDeleteInBatch);
     experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 5, nInsertInBatch, nDeleteInBatch);
-//    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 10, nInsertInBatch, nDeleteInBatch);
-//    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 20, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 10, nInsertInBatch, nDeleteInBatch);
+    experimentWithDBModification("QueryInBatch", log, nDataRange, nmbRec,  sel, nBatch, 20, nInsertInBatch, nDeleteInBatch);
 
     log.close();
 
@@ -97,8 +99,6 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch) noexcept(true){
     const size_t endRange = beginRange + dataRange*nmbRec/100-1 - sel*nmbRec/100;
 
     std::cout << "Begin range: \t" << beginRange << "End range: \t" <<  endRange << std::endl;
-
-
 
     if (expType=="QueryInBatch"){
            log << std::to_string(nQueryInBatch) <<  "\t" ;    
@@ -260,7 +260,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
     const auto endBatch1 = std::chrono::high_resolution_clock::now();
     log  <<  std::chrono::duration_cast<std::chrono::milliseconds>(endBatch1 - startBatch1).count() << "\t";
 
-
+    delete amIndex;
 }
 
 
@@ -378,9 +378,6 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
 
 
 }
-
-
-
 
 
 void DBExperiment::expFullScanDBModification(const std::vector<DBRecord>& generatedRecords, std::ofstream& log,  std::vector<size_t>& queryCount, 

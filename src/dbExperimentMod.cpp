@@ -19,7 +19,7 @@
 void DBExperiment::expDiffQueryInBatchNumberDBModification() noexcept(true){
 
     // database record number
-    const size_t nmbRec = 10000000;
+    const size_t nmbRec = 1000000;
 
     // selectivity (%) of the query
     const size_t sel = 1;
@@ -27,7 +27,7 @@ void DBExperiment::expDiffQueryInBatchNumberDBModification() noexcept(true){
     size_t nDataRange = 50;
 
     // Number of batches
-    size_t nBatch = 10;
+    size_t nBatch = 2;
 
     size_t nInsertInBatch = 10;
     size_t nDeleteInBatch = 5;
@@ -86,7 +86,67 @@ void DBExperiment::expDiffBatchNumberDBModification() noexcept(true){
 }
 
 
+void DBExperiment::experimentWithDBModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec,  const size_t sel, 
+const size_t nBatch, const size_t nQueryInBatch,
+const size_t nInsertInBatch, const size_t nDeleteInBatch) noexcept(true){
 
+
+    std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);
+
+    const size_t beginRange = nmbRec - (dataRange * nmbRec)/100;
+    const size_t endRange = beginRange + dataRange*nmbRec/100-1 - sel*nmbRec/100;
+
+    std::cout << "Begin range: \t" << beginRange << "End range: \t" <<  endRange << std::endl;
+
+
+
+    if (expType=="QueryInBatch"){
+           log << std::to_string(nQueryInBatch) <<  "\t" ;    
+    }
+
+
+    if (expType=="BatchSize"){
+           log << std::to_string(nBatch) <<  "\t" ;    
+    }
+ 
+    // Randomly choosing the beginning of the range query
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> distr(beginRange, endRange);
+
+    std::vector<size_t> queryCount;
+
+    for (size_t i=0; i<nQueryInBatch*nBatch; i++){
+        queryCount.push_back(distr(gen));
+    }
+
+
+    // Generate records to insert in all batches
+    std::vector<DBRecord> recordsToInsert = DBRecordGenerator::generateRecords(nInsertInBatch*nBatch, 113);
+
+
+    // Generate elements to delete in all batches 
+    std::random_device rd1;
+    std::mt19937 gen1(rd1());
+    std::uniform_int_distribution<size_t> distr1(1, nmbRec);
+    std::vector<size_t> elementsToDelete;
+
+    for (size_t j=0; j<nBatch*nDeleteInBatch; j++){
+        elementsToDelete.push_back(distr(gen1));
+    }
+
+
+    expFullScanDBModification(records, log, queryCount, nmbRec,  sel,
+    nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch, recordsToInsert, elementsToDelete);
+    expSecondaryIndexScanDBModification(records, log, queryCount, nmbRec,  sel,
+    nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch, recordsToInsert, elementsToDelete);
+    expAdaptiveMergingDBModification(records, log, queryCount, nmbRec,  sel,
+    nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch, recordsToInsert, elementsToDelete);
+
+    log << std::endl;
+
+
+}
 
 void DBExperiment::expAdaptiveMergingDBModification(const std::vector<DBRecord>& generatedRecords, std::ofstream& log,  std::vector<size_t>& queryCount, 
 const size_t nmbRec,  const size_t sel, const size_t nBatch, const size_t nQueryInBatch,
@@ -159,7 +219,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                     dbIndex->psearch(secKey);
                 }
              }
-
+            std::cout << "ADAPTIVE MERGING ---- Batch " << i << "searched" << std::endl;
         }
 
         // inserting in batch
@@ -175,7 +235,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
 
                 // sort records to make a range for searchfuther operations
                 std::sort(std::begin(recordsWithSecKey), std::end(recordsWithSecKey));   
-
+            std::cout << "ADAPTIVE MERGING ---- Batch " << i << "inserted" << std::endl;
         }
     
         // deleting in batch
@@ -191,7 +251,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                     recordsWithSecKey.erase(recordsWithSecKey.begin() + static_cast<unsigned>(elementsToDelete[j]));
                 //    recordsWithSecKey.pop_back(temp);
                 }
-
+            std::cout << "ADAPTIVE MERGING ---- Batch " << i << "deleted" << std::endl;
         }
 
     }
@@ -203,70 +263,6 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
 
 }
 
-
-
-
-void DBExperiment::experimentWithDBModification(std::string expType, std::ofstream& log, const size_t dataRange, const size_t nmbRec,  const size_t sel, 
-const size_t nBatch, const size_t nQueryInBatch,
-const size_t nInsertInBatch, const size_t nDeleteInBatch) noexcept(true){
-
-
-    std::vector<DBRecord> records = DBRecordGenerator::generateRecords(nmbRec, 113);
-
-    const size_t beginRange = nmbRec - (dataRange * nmbRec)/100;
-    const size_t endRange = beginRange + dataRange*nmbRec/100-1 - sel*nmbRec/100;
-
-    std::cout << "Begin range: \t" << beginRange << "End range: \t" <<  endRange << std::endl;
-
-
-
-    if (expType=="QueryInBatch"){
-           log << std::to_string(nQueryInBatch) <<  "\t" ;    
-    }
-
-
-    if (expType=="BatchSize"){
-           log << std::to_string(nBatch) <<  "\t" ;    
-    }
- 
-    // Randomly choosing the beginning of the range query
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<size_t> distr(beginRange, endRange);
-
-    std::vector<size_t> queryCount;
-
-    for (size_t i=0; i<nQueryInBatch*nBatch; i++){
-        queryCount.push_back(distr(gen));
-    }
-
-
-    // Generate records to insert in all batches
-    std::vector<DBRecord> recordsToInsert = DBRecordGenerator::generateRecords(nInsertInBatch*nBatch, 113);
-
-
-    // Generate elements to delete in all batches 
-    std::random_device rd1;
-    std::mt19937 gen1(rd1());
-    std::uniform_int_distribution<size_t> distr1(1, nmbRec);
-    std::vector<size_t> elementsToDelete;
-
-    for (size_t j=0; j<nBatch*nDeleteInBatch; j++){
-        elementsToDelete.push_back(distr(gen1));
-    }
-
-
-    expFullScanDBModification(records, log, queryCount, nmbRec,  sel,
-    nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch, recordsToInsert, elementsToDelete);
-    expSecondaryIndexScanDBModification(records, log, queryCount, nmbRec,  sel,
-    nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch, recordsToInsert, elementsToDelete);
-    expAdaptiveMergingDBModification(records, log, queryCount, nmbRec,  sel,
-    nBatch, nQueryInBatch, nInsertInBatch, nDeleteInBatch, recordsToInsert, elementsToDelete);
-
-    log << std::endl;
-
-
-}
 
 
 void DBExperiment::expSecondaryIndexScanDBModification(const std::vector<DBRecord>& generatedRecords, std::ofstream& log,  std::vector<size_t>& queryCount, 
@@ -336,7 +332,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                     dbIndex->psearch(secKey);
                 }
              }
-
+            std::cout << "SECONDARY SCAN---- Batch " << i << "searched" << std::endl;
         }
 
         // inserting in batch
@@ -352,7 +348,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
 
                 // sort records to make a range for searchfuther operations
                 std::sort(std::begin(recordsWithSecKey), std::end(recordsWithSecKey));   
-
+                std::cout << "SECONDARY SCAN---- Batch " << i << "inserted" << std::endl;
         }
     
         // deleting in batch
@@ -368,7 +364,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                     recordsWithSecKey.erase(recordsWithSecKey.begin() + static_cast<unsigned>(elementsToDelete[j]));
                 //    recordsWithSecKey.pop_back(temp);
                 }
-
+            std::cout << "SECONDARY SCAN---- Batch " << i << "deleted" << std::endl;
         }
 
     }
@@ -428,6 +424,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                 dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
              }
 
+        std::cout << "FULL SCAN---- Batch " << i << "searched" << std::endl;
         }
 
         // inserting in batch
@@ -442,7 +439,7 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
 
                 // sort records to make a range for searchfuther operations
                 std::sort(std::begin(recordsWithSecKey), std::end(recordsWithSecKey));   
-
+        std::cout << "FULL SCAN---- Batch " << i << "inserted" << std::endl;
         }
     
         // deleting in batch
@@ -456,9 +453,8 @@ const size_t nInsertInBatch, const size_t nDeleteInBatch, std::vector<DBRecord> 
                     recordsWithSecKey.erase(recordsWithSecKey.begin() + static_cast<unsigned>(elementsToDelete[j]));
                 //    recordsWithSecKey.pop_back(temp);
                 }
-
+        std::cout << "FULL SCAN---- Batch " << i << "deleted" << std::endl;
         }
-        std::cout << "Batch: \t" << i << " completed" << std::endl;
 
     }
   

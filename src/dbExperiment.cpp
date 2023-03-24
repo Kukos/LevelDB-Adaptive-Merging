@@ -24,7 +24,7 @@ void DBExperiment::experiments() noexcept(true){
      // expDiffDataRange();
      //expDiffSelectivity();
 
-     expDiffQueryInBatchNumberDBModification();
+    // expDiffQueryInBatchNumberDBModification();
 
     // expDiffDataSize();
 
@@ -32,7 +32,7 @@ void DBExperiment::experiments() noexcept(true){
     
  //   expDiffQueryNumber(2);
   //  expDiffQueryNumber(5);
-  //  expDiffQueryNumber(10);
+    expDiffQueryNumber(80);
 
 }
 
@@ -91,8 +91,8 @@ void DBExperiment::expSecondaryIndexScan(const std::vector<DBRecord>& generatedR
     for (size_t i=0; i<queryCount.size(); i++){
 
 
-    size_t bRange= static_cast<size_t>(queryCount[i]);
-    size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
+    size_t bRange= static_cast<size_t>(queryCount[0]);
+    size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
        
        std::vector<DBRecord> ret =  dbSecondaryIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
 
@@ -145,8 +145,8 @@ void DBExperiment::expFullScan(const std::vector<DBRecord>& generatedRecords, st
 
     // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-        size_t bRange= static_cast<size_t>(queryCount[i]);
-        size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
+        size_t bRange= static_cast<size_t>(queryCount[0]);
+        size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
         dbIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
     }
 
@@ -210,8 +210,8 @@ std::cout << "=== ADAPTIVE MERGING === "<< std::endl;
     const auto startBatch1 = std::chrono::high_resolution_clock::now();
        // Executing range queries
     for (size_t i=0; i<queryCount.size(); i++){
-        size_t bRange= static_cast<size_t>(queryCount[i]);
-        size_t eRange= static_cast<size_t>(queryCount[i]  + sel * nmbRec / 100);
+        size_t bRange= static_cast<size_t>(queryCount[0]);
+        size_t eRange= static_cast<size_t>(queryCount[0]  + sel * nmbRec / 100);
         std::vector<DBRecord> ret =  amIndex->rsearch(recordsWithSecKey[bRange].getKey().ToString(), recordsWithSecKey[eRange].getKey().ToString());
 
         for (const auto& r : ret)
@@ -340,11 +340,11 @@ void DBExperiment::expDiffQueryNumber(size_t dataRange) noexcept(true){
 
     log << " QueryNumber \t  Full scan \t Sec create \t   Sec scan \t  Ad create \t Adaptive \t"<< std::endl;
 
-//    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 20, sel);
-//    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
-//    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
- //   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
-   experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 20, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 50, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 100, sel);
+    experimentNoModification("QueryNumber", log, dataRange, nmbRec, 200, sel);
+   // experimentNoModification("QueryNumber", log, dataRange, nmbRec, 500, sel);
 
 
     log.close();
